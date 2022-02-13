@@ -1,0 +1,7 @@
+Given a dealer upcard and a current shoe or infinite shoe, get probability that they will bust, 17, 18, 19, 20, 21, BJ. Compare the two
+
+Add surrendering option
+
+Write some tests
+
+Generate some EV tables (force upcard and player cards)

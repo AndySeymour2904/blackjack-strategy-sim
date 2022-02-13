@@ -8,3 +8,12 @@ def is_pair(cards):
 
 def is_soft_hand(cards):
     return len([card for card in cards if card == 11]) > 0
+
+def get_count_for_card(card):
+    # Hi-Lo strategy for counting cards
+    if card < 7:
+        return 1
+    elif card > 9:
+        return -1
+    else:
+        return 0

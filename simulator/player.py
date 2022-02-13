@@ -1,4 +1,10 @@
+
+import logging
+
 from card_utils import is_soft_hand
+from config import BET, BET_MULTIPLIER_FUNC
+
+logger = logging.getLogger()
 
 I_HARD_HAND_OFFSET = 4
 J_HARD_HAND_OFFSET = 2
@@ -42,7 +48,7 @@ BASIC_STRATEGY_GRID_SOFT_HANDS = [
     ["H" , "H" , "D" , "D" , "D" , "H", "H", "H", "H" , "H" ], # 16 A
     ["H" , "D" , "D" , "D" , "D" , "H", "H", "H", "H" , "H" ], # 17 L
     ["Ds", "Ds", "Ds", "Ds", "Ds", "S", "S", "H", "H" , "H" ], # 18
-    ["S" , "S" , "S" , "S" , "Ds", "S", "S", "S", "S" , "S" ], # 19
+    ["S" , "S" , "S" , "S" , "S", "S", "S", "S", "S" , "S" ], # 19
     ["S" , "S" , "S" , "S" , "S" , "S", "S", "S", "S" , "S" ], # 20
     ["S" , "S" , "S" , "S" , "S" , "S", "S", "S", "S" , "S" ], # 21
 ]
@@ -65,15 +71,24 @@ BASIC_STRATEGY_GRID_SPLIT_HANDS = [
 
 
 class Player:
-    def get_bet(self, bank):
-        return 1
+    def get_bet(self, true_count):
+        return BET * BET_MULTIPLIER_FUNC(true_count)
+
+    
+    def get_insurance_bet(self, cards, dealer_upcard):
+        return 0
 
 
     def want_split(self, cards, dealer_upcard):
-        return False
+        action = BASIC_STRATEGY_GRID_SPLIT_HANDS[cards[0] - I_SPLIT_HAND_OFFSET][dealer_upcard - J_SPLIT_HAND_OFFSET]
+        if action == "N":
+            return False
+        else:
+            return True
 
 
     def want_double(self, cards, dealer_upcard):
+
         hand_total = sum(cards)
 
         if is_soft_hand(cards):
@@ -90,16 +105,16 @@ class Player:
     def want_hit(self, cards, dealer_upcard):
         hand_total = sum(cards)
 
-        print(f"hand_total: {hand_total}, dealer_upcard: {dealer_upcard}")
+        logger.debug(f"hand_total: {hand_total}, dealer_upcard: {dealer_upcard}")
 
         if is_soft_hand(cards):
             action = BASIC_STRATEGY_GRID_SOFT_HANDS[hand_total - I_SOFT_HAND_OFFSET][dealer_upcard - J_SOFT_HAND_OFFSET]
         else:
             action = BASIC_STRATEGY_GRID_HARD_HANDS[hand_total - I_HARD_HAND_OFFSET][dealer_upcard - J_HARD_HAND_OFFSET]
 
-        print(f"Action: {action}")
+        logger.debug(f"Action: {action}")
         if action == "D" or action == "H":
             return True
         elif action == "Ds" or action == "S":
             return False
-
+            

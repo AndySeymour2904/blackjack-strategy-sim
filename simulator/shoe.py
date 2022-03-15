@@ -1,7 +1,7 @@
 import random
 import logging
 
-from config import DECKS, DECK_PENETRATION, IS_INFINITE_DECK
+from config import DECKS, DECK_PENETRATION, IS_INFINITE_SHOE
 
 from card_utils import get_count_for_card
 
@@ -20,15 +20,20 @@ class Shoe:
         random.shuffle(self.shoe)
 
 
-    def draw(self):
-        if IS_INFINITE_DECK:
+    def draw(self, force_card=None):
+
+        if force_card and force_card in self.shoe:
+            card = force_card
+
+            if not IS_INFINITE_SHOE:
+                self.shoe.remove(force_card)
+
+        elif IS_INFINITE_SHOE:
             card = random.choice(self.shoe)
         else:
             card = self.shoe.pop()
 
         self.count = self.count + get_count_for_card(card)
-
-        logger.debug(f"Shoe draws: {card}")
         return card
 
 

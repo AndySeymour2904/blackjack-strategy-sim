@@ -105,14 +105,11 @@ class Player:
     def want_hit(self, cards, dealer_upcard):
         hand_total = sum(cards)
 
-        logger.debug(f"hand_total: {hand_total}, dealer_upcard: {dealer_upcard}")
-
         if is_soft_hand(cards):
             action = BASIC_STRATEGY_GRID_SOFT_HANDS[hand_total - I_SOFT_HAND_OFFSET][dealer_upcard - J_SOFT_HAND_OFFSET]
         else:
             action = BASIC_STRATEGY_GRID_HARD_HANDS[hand_total - I_HARD_HAND_OFFSET][dealer_upcard - J_HARD_HAND_OFFSET]
 
-        logger.debug(f"Action: {action}")
         if action == "D" or action == "H":
             return True
         elif action == "Ds" or action == "S":

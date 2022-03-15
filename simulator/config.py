@@ -1,9 +1,15 @@
 DECKS = 6
 DECK_PENETRATION = 0.75
 
-IS_INFINITE_DECK = True
+IS_INFINITE_SHOE = True
 
 BET = 1
+
+# Will only force the card if it is in the shoe
+FORCE_PLAYER_CARD_1 = False # int (card) or False
+FORCE_PLAYER_CARD_2 = False # int (card) or False
+FORCE_DEALER_UPCARD = False # int (card) or False
+FORCE_DEALER_DOWNCARD = False # int (card) or False
 
 DEALER_STAND_THRESHOLD = 17
 DEALER_HITS_SOFT_STAND_THRESHOLD = False

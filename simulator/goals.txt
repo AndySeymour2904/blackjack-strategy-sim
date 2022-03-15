@@ -3,5 +3,3 @@ Given a dealer upcard and a current shoe or infinite shoe, get probability that 
 Add surrendering option
 
 Write some tests
-
-Generate some EV tables (force upcard and player cards)

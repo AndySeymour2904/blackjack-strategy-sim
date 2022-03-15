@@ -5,9 +5,10 @@ from stats import Stats
 import logging
 
 from tqdm import tqdm
+from colorama import Back, Fore
 
 from card_utils import is_blackjack, is_pair
-from config import CAN_PLAY_SPLIT_ACES, CAN_SPLIT_ACES, BLACKJACK_PAY_AMOUNT, MAX_SPLITS
+from config import CAN_PLAY_SPLIT_ACES, CAN_SPLIT_ACES, BLACKJACK_PAY_AMOUNT, MAX_SPLITS, FORCE_PLAYER_CARD_1, FORCE_PLAYER_CARD_2, FORCE_DEALER_UPCARD, FORCE_DEALER_DOWNCARD
 
 logger = logging.getLogger()
 
@@ -75,14 +76,17 @@ class Game:
 
 
     def player_blackjack(self, bet):
+        logger.debug(f"{Back.MAGENTA}BLACKJACK{Back.RESET}")
         self.player_bank = self.player_bank + bet * (1 + BLACKJACK_PAY_AMOUNT)
 
 
     def player_win(self, bet):
+        logger.debug(f"{Back.GREEN}WIN{Back.RESET}")
         self.player_bank = self.player_bank + bet * 2
 
 
     def player_push(self, bet):
+        logger.debug(f"{Back.WHITE}{Fore.BLACK}PUSH{Fore.RESET}{Back.RESET}")
         self.player_bank = self.player_bank + bet
 
     
@@ -106,15 +110,13 @@ class Game:
             if aces > 0:
                 self.player_hands[index]["cards"][self.player_hands[index]["cards"].index(11)] = 1
             else:
+                logger.debug(f'Cards: {self.player_hands[index]["cards"]}, total: {sum(self.player_hands[index]["cards"])}')
                 logger.debug("BUST")
-                logger.debug(f'Cards: {self.player_hands[index]["cards"]}')
                 self.player_hands[index]["result"] = -1
                 return
 
-        logger.debug(f'Cards: {self.player_hands[index]["cards"]}')
+        logger.debug(f'Cards: {self.player_hands[index]["cards"]}, total: {sum(self.player_hands[index]["cards"])}')
         self.player_hands[index]["result"] = sum(self.player_hands[index]["cards"])
-
-        logger.debug(f'Total: {self.player_hands[index]["result"]}')
 
     
     def player_has_blackjack(self):
@@ -124,8 +126,6 @@ class Game:
     def play_hand(self, index):
         cards = self.player_hands[index]["cards"]
         dealer_upcard = self.dealer.upcard
-
-        logger.debug(f'Cards: {cards}, Dealer upcard: {dealer_upcard}')
 
         if self.player_has_blackjack():
             self.player_hands[index]["result"] = 21
@@ -179,7 +179,12 @@ class Game:
             player_bet = self.get_player_bet()
             player_insurance_bet = 0
 
-            cards = [self.shoe.draw(), self.shoe.draw(), self.shoe.draw(), self.shoe.draw()]
+            cards = [
+                self.shoe.draw(force_card=FORCE_PLAYER_CARD_1), 
+                self.shoe.draw(force_card=FORCE_DEALER_UPCARD), 
+                self.shoe.draw(force_card=FORCE_PLAYER_CARD_2), 
+                self.shoe.draw(force_card=FORCE_DEALER_DOWNCARD)
+            ]
 
             self.dealer.dealt([cards[1], cards[3]])
             self.player_hands = [
@@ -189,6 +194,8 @@ class Game:
             player_starting_cards = self.player_hands[0]["cards"].copy()
 
             dealer_upcard = self.dealer.upcard
+
+            logger.debug(f"UPCARD: {dealer_upcard}")
 
             # Offer insurance (bet can be 0)
             if dealer_upcard == 11:
@@ -217,7 +224,6 @@ class Game:
                 logger.debug(f'Player: {player_hand["result"]}, {player_hand["cards"]}')
 
                 if self.player_has_blackjack():
-                    logger.debug("BLACKJACK")
                     if self.dealer.has_blackjack():
                         self.player_push(self.player_hands[index]["bet"])
                     else:
@@ -227,6 +233,8 @@ class Game:
                         self.player_win(self.player_hands[index]["bet"])
                     elif self.dealer.result == player_hand["result"]:
                         self.player_push(self.player_hands[index]["bet"])
+                    else:
+                        logger.debug(f"{Back.RED}LOSE{Back.RESET}")
 
             if self.should_print_stats:
                 self.stats.record_hand(player_starting_cards, dealer_upcard, self.player_bank - player_starting_bank)

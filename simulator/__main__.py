@@ -3,7 +3,7 @@ import logging
 from game import Game
 
 logging.basicConfig(
-    format='%(levelname)s:%(message)s',
+    format='%(message)s',
     level=logging.DEBUG
 )
 

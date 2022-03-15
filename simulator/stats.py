@@ -41,22 +41,28 @@ class Stats:
 		pair_rowIDs = ["2,2", "3,3", "4,4", "5,5", "6,6", "7,7", "8,8", "9,9", "10,10", "A,A"]
 		soft_rowIDs = ["A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10"]
 
+		def compute_cell_and_color(payoff, occurence):
+			val = 0 if occurence == 0 else payoff / occurence
+
+			color = ""
+			if val > 0:
+				color = Back.GREEN
+			elif val < 0:
+				color = Back.RED
+
+			return f"{color}{val}{Back.RESET}"
+
 		for i in range(len(self.hard_grid_ev)):
 			for j in range(len(self.hard_grid_ev[i])):
-				val = 0 if self.hard_grid_occurence[i][j] == 0 else self.hard_grid_payoff[i][j] / self.hard_grid_occurence[i][j]
-				color = Back.GREEN if val >= 0 else Back.RED
-				self.hard_grid_ev[i][j] = f"{color}{val}{Back.RESET}"
+				self.hard_grid_ev[i][j] = compute_cell_and_color(self.hard_grid_payoff[i][j], self.hard_grid_occurence[i][j])
 
 		for i in range(len(self.pair_grid_ev)):
 			for j in range(len(self.pair_grid_ev[i])):
-				val = 0 if self.pair_grid_occurence[i][j] == 0 else self.pair_grid_payoff[i][j] / self.pair_grid_occurence[i][j]
-				color = Back.GREEN if val >= 0 else Back.RED
-				self.pair_grid_ev[i][j] = f"{color}{val}{Back.RESET}"
+				self.pair_grid_ev[i][j] = compute_cell_and_color(self.pair_grid_payoff[i][j], self.pair_grid_occurence[i][j])
+
 		for i in range(len(self.soft_grid_ev)):
 			for j in range(len(self.soft_grid_ev[i])):
-				val = 0 if self.soft_grid_occurence[i][j] == 0 else self.soft_grid_payoff[i][j] / self.soft_grid_occurence[i][j]
-				color = Back.GREEN if val >= 0 else Back.RED
-				self.soft_grid_ev[i][j] = f"{color}{val}{Back.RESET}"
+				self.soft_grid_ev[i][j] = compute_cell_and_color(self.soft_grid_payoff[i][j], self.soft_grid_occurence[i][j])
 
 		logger.info("\nHARD TOTALS\n" + tabulate(self.hard_grid_ev, headers=headers, showindex=hard_rowIDs, tablefmt="fancy_grid", floatfmt=".5f"))
 		logger.info("\nPAIRS\n" + tabulate(self.pair_grid_ev, headers=headers, showindex=pair_rowIDs, tablefmt="fancy_grid", floatfmt=".5f"))
